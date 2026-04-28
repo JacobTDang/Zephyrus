@@ -12,7 +12,14 @@ LANDMARK_NAMES = [
     "RING_MCP", "RING_PIP", "RING_DIP", "RING_TIP",
     "PINKY_MCP", "PINKY_PIP", "PINKY_DIP", "PINKY_TIP",
 ]
-
+HAND_CONNECTIONS = [
+    (0,1),(1,2),(2,3),(3,4),
+    (0,5),(5,6),(6,7),(7,8),
+    (5,9),(9,10),(10,11),(11,12),
+    (9,13),(13,14),(14,15),(15,16),
+    (13,17),(17,18),(18,19),(19,20),
+    (0,17)
+]
 
 class Vision:
 
@@ -28,12 +35,18 @@ class Vision:
     def _draw_landmarks(self, frame, result: HandLandmarkerResult):
         h, w = frame.shape[:2]
         for hand_landmarks in result.hand_landmarks:
+            points=[]
+
             for i, lm in enumerate(hand_landmarks):
                 # normallize the image
                 x, y = int(lm.x * w), int(lm.y * h)
                 cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
-                cv2.putText(frame, LANDMARK_NAMES[i], (x + 6, y - 6),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1)
+                points.append((x, y))    
+            
+            # connect the circles to each hand HAND_CONNECTIONS
+            for start, end in HAND_CONNECTIONS:
+                cv2.line(frame, points[start], points[end], (225, 255, 255), 2)
+
 
     def _set_up_camera(self):
         self.capture = cv2.VideoCapture(0)
